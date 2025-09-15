@@ -1,0 +1,131 @@
+#!/bin/ksh
+
+# This script helps manage monthly backup files
+
+#Functions
+
+#To adjust to the previous month. One argument(Month)
+getDate() {
+typeset -i month=$1
+
+if (( $month==1 )) ; then
+	(( year-- ))
+	echo "12" ;  
+else
+	(( month-- ))
+	echo "$month" ; 
+fi
+}
+
+#Function to search for incomplete sets. Two arguments(Files, Set)
+clean() {
+	typeset month=$(printf "%02d" "$month")
+	typeset year=$(printf "%04d" "$year")
+	typeset -i files_to_process=$1
+	typeset -i set_number=$2
+ 
+	while (( files_to_process > 0 )); do
+	count=$(ls -la "${directory}${filename}${month}"??"$year"_??_"${set_number}".zip 2>/dev/null | grep -v "CT" | wc -l) 
+	if (( count != sets )) ; then
+		echo "rm "${directory}${filename}${month}"??"$year"_??_"$set_number".zip"
+		(( files_to_process -= count ))
+		(( set_number++ ))
+	else 
+		(( files_to_process -= count ))
+		(( set_number++ ))
+		core "${files_to_process }" "${set_number}"
+	fi
+done
+}
+
+#Workaround in case there are no valid filesets, by using old data. No arguments
+monthly_wa() {
+	echo "Current files not available. Performing Workaround"\n\n
+	
+	#Function to find the first complete set and return the number. One argument(Month)
+	waClean() {
+		typeset month=$(printf "%02d" "$1")
+		typeset year=$(printf "%04d" "$year")
+		typeset -i set_number=1
+ 
+		while true ; do
+			count=$(ls -la "${directory}${filename}${month}"??"$year"_??_"${set_number}".zip 2>/dev/null | grep -v "CT" | wc -l) 
+			if (( count != sets )) ; then
+				(( set_number++ ))
+			else 
+				echo $set_number
+				return
+			fi
+		done
+	}
+	
+	#Function to find the exact day. Two arguments(Month, Year)
+	dayCheck() {
+			typeset -i year=$2
+            case "$1" in
+                4|6|9|11)
+                    echo "30";
+					
+                    ;;
+                2)
+                    if (( year % 4 == 0 && year % 100 != 0 || year % 400 == 0 )); then
+                        echo "29";
+                    else
+                        echo "28";
+                    fi
+                    ;;
+                *)
+                    echo "31";
+                    ;;
+            esac
+	}
+		
+	typeset currentYear=$(printf "%04d" "$year") #Preserve current year
+	typeset waMonth=$(printf "%02d" "$(getDate "$month")")	#getDate may change year
+	typeset -i oldSet=$(waClean "$waMonth") #Use the modified clean to get the set number
+	typeset day=$(printf "%02d" "$(dayCheck "$month" "$currentYear")")
+	typeset oldDay=$(printf "%02d" "$(dayCheck "$waMonth" "$year")")
+
+	echo "cp "$directory$filename$waMonth$oldDay$year"_AA_"$oldSet".zip "$directory$filename$month$day$currentYear"_AA_1.zip"
+
+	
+	exit 0
+}
+
+#Core recursion logic. Two arguments(Files, Set)
+
+core() {
+	clean "$1" "$2" 
+	exit 0
+}
+
+#Main
+
+typeset -i month=$(date '+%m')
+typeset -i year=$(date '+%Y')
+
+month=$(getDate "$month")
+directory=/sample/backup/monthly/
+filename=backup
+typeset -i sets=5
+typeset -i total=0
+
+# We need a count of the relevant files to check
+
+for file in "${directory}${filename}${month}"*.zip; do
+	if [[ -f "${file}" ]]; then
+        (( total++ ))
+    fi
+done
+
+#Need to workaround if we have no complete set - check 1
+(( $total < $sets )) && monthly_wa
+
+# Checking for complete sets
+# If a set is incomplete, output command for removal - check 2
+
+clean "$total" "1"
+
+#If no complete set exists, workaround
+monthly_wa
+
