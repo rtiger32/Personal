@@ -104,7 +104,7 @@ core() {
 typeset -i month=$(date '+%m')
 typeset -i year=$(date '+%Y')
 
-month=$(getDate "$month")
+typeset filemonth=$(printf "%02d" "$(getDate "$month")")
 directory=/sample/backup/monthly/
 filename=backup
 typeset -i sets=5
@@ -112,7 +112,7 @@ typeset -i total=0
 
 # We need a count of the relevant files to check
 
-for file in "${directory}${filename}${month}"*.zip; do
+for file in "${directory}${filename}${filemonth}"*.zip; do
 	if [[ -f "${file}" ]]; then
         (( total++ ))
     fi
