@@ -1,0 +1,1 @@
+I have been working with programming languages for 30 years. Everything from assembly and basic to python and java. Most of my recent work is in SQL and shell. I don't care about syntax as much as I care about the logic flow.
