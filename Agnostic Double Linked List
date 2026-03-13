@@ -1,3 +1,5 @@
+## This contains examples of algorithms and data structures written in a language-neutral pseudocode style.
+## The goal is to demonstrate underlying programming concepts independent of any specific programming language syntax.
 
 !import io
 !import lib
