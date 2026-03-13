@@ -1,0 +1,41 @@
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <stdint.h> 
+
+typedef struct Node 
+{ intptr_t diff; 
+int data; 
+} Node; 
+
+Node* create_node(int data) 
+{ Node* node = (Node*)malloc(sizeof(Node)); 
+node->data = data; 
+node->diff = 0; 
+return node; 
+} 
+
+void insert(Node** head, int data) 
+{ Node* new_node = create_node(data); 
+new_node->diff = (intptr_t)*head ^ (intptr_t)NULL; 
+
+if (*head != NULL) 
+{ intptr_t next = (*head)->diff ^ (intptr_t)NULL; 
+(*head)->diff = (intptr_t)new_node ^ next; 
+} 
+
+*head = new_node; 
+} 
+
+void traverse(Node* head) 
+{ Node* curr = head; 
+Node* prev = NULL; 
+Node* next; 
+
+while (curr != NULL) 
+{ printf("%d -> ", curr->data); 
+next = (Node*)(curr->diff ^ (intptr_t)prev); 
+prev = curr; 
+curr = next; 
+} 
+printf("NULL\n"); 
+} 
