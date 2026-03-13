@@ -1,0 +1,41 @@
+
+!import io
+!import lib
+!import int
+
+def Node {
+int data;
+int diff; #pointer
+} Node;
+
+create_node(int data) {
+node:data = $data;
+node:diff = NULL;
+return node;
+}
+
+insert(Node head, int data) {
+Node new_node = create_node(data);
+new_node:diff = $(head:diff ^ NULL);
+
+if (head != NULL) {
+next = $(head:diff ^ NULL)
+head:diff = $(new_node:diff ^ next)
+}
+
+head = $new_node;
+}
+
+traverse(Node head) {
+Node curr = $head;
+Node next;
+Node prev = NULL;
+
+while (curr != NULL) {
+print $curr:data;
+next = (Node)$(curr:diff ^ prev:diff);
+prev = $curr;
+curr = $next;
+}
+print “NULL”;
+}
