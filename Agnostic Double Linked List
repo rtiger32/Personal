@@ -1,5 +1,8 @@
-## This contains examples of algorithms and data structures written in a language-neutral pseudocode style.
-## The goal is to demonstrate underlying programming concepts independent of any specific programming language syntax.
+# This contains examples of algorithms and data structures written in a language-neutral pseudocode style.
+# The goal is to demonstrate underlying programming concepts independent of any specific programming language syntax.
+#
+# diff stores XOR of previous and next node pointers
+# next node is obtained by XORing diff with previous node pointer
 
 !import io
 !import lib
