@@ -33,7 +33,7 @@ clean() {
 	else 
 		(( files_to_process -= count ))
 		(( set_number++ ))
-		core "${files_to_process }" "${set_number}"
+		core "${files_to_process}" "${set_number}"
 	fi
 done
 }
