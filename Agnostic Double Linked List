@@ -1,8 +1,6 @@
-# This contains examples of algorithms and data structures written in a language-neutral pseudocode style.
-# The goal is to demonstrate underlying programming concepts independent of any specific programming language syntax.
-#
-# diff stores XOR of previous and next node pointers
-# next node is obtained by XORing diff with previous node pointer
+# diff stores XOR of previous and next node addresses
+# next node = curr:diff XOR address of prev node
+# addr(x) = the address of node x
 
 !import io
 !import lib
@@ -10,7 +8,7 @@
 
 def Node {
 int data;
-int diff; #pointer
+int diff; #prev XOR next, as addresses
 } Node;
 
 create_node(int data) {
@@ -21,26 +19,25 @@ return node;
 
 insert(Node head, int data) {
 Node new_node = create_node(data);
-new_node:diff = $(head:diff ^ NULL);
+new_node:diff = $(NULL ^ addr(head));        # new front: prev is NULL, next is head
 
 if (head != NULL) {
-next = $(head:diff ^ NULL)
-head:diff = $(new_node:diff ^ next)
+head:diff = $(addr(new_node) ^ head:diff);   # old diff was NULL ^ next, so swap NULL for new_node
 }
 
-head = $new_node;
+return new_node;                             # caller sets head = insert(head, data)
 }
 
 traverse(Node head) {
 Node curr = $head;
-Node next;
 Node prev = NULL;
+Node next;
 
 while (curr != NULL) {
 print $curr:data;
-next = (Node)$(curr:diff ^ prev:diff);
+next = (Node)$(curr:diff ^ addr(prev));      # XOR with prev's address, not prev's diff
 prev = $curr;
 curr = $next;
 }
-print “NULL”;
+print "NULL";
 }
